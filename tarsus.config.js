@@ -4,13 +4,12 @@ module.exports = {
         database: {
             default: true,
             type: "mysql",
-            host: "localhost",
-            username: "root",
-            password: "12345678",
-            database: "test_db", //所用数据库
+            host: "127.0.0.1",
+            user: "root",
+            password: "123456",
+            database: "word_server", //所用数据库
             port: 3306,
             connectionLimit: 10,
         },
-
     },
 };

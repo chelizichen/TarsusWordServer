@@ -11,8 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/mysql": "^2.15.21",
     "@types/node": "^20.5.1",
-    "tarsus": "1.4.6",
+    "tarsus": "1.4.7",
     "typescript": "5.0.2"
   }
 }
