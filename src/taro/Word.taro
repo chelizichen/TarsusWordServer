@@ -13,7 +13,8 @@ struct WordParams  {
         2   en_name       :     string; // 英文单词
         3   create_time   :     string; // 创建时间
         4   own_mark      :     string; // 备注
-        5   type          :     string; // 1 初始化提交 0 已提交过
+        5   type          :     string; // 类型
+        6   total_trans   :     int;    // 翻译个数
     };
 
     // 单词翻译
