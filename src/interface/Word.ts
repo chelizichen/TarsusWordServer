@@ -15,16 +15,14 @@ import {
 import {sign} from "crypto";
 
 
-interface WordServerInf {
-    getWordList(Request: getWordListReq, Response: getWordListRes): Promise<getWordListRes>
+interface  WordServerInf {
+    getWordList(Request:getWordListReq,Response:getWordListRes):Promise<getWordListRes>
+    getTranslateList(Request:getTranslateListReq,Response:getTranslateListRes):Promise<getTranslateListRes>
+    delWordById(Request:DelReq,Response:DelOrSaveRes):Promise<DelOrSaveRes>
+    delTranslateByID(Request:DelReq,Response:DelOrSaveRes):Promise<DelOrSaveRes>
+    saveWord(Request:Word,Response:DelOrSaveRes):Promise<DelOrSaveRes>
+    saveTranslate(Request:WordTranslate,Response:DelOrSaveRes):Promise<DelOrSaveRes>
 
-    getTranslateList(Request: getTranslateListReq, Response: getTranslateListRes): Promise<getTranslateListRes>
-
-    delWordById(Request: DelReq, Response: DelOrSaveRes): Promise<DelOrSaveRes>
-
-    saveWord(Request: Word, Response: DelOrSaveRes): Promise<DelOrSaveRes>
-
-    saveTranslate(Request: WordTranslate, Response: DelOrSaveRes): Promise<DelOrSaveRes>
 }
 
 @TarsusInterFace("word")
@@ -146,6 +144,19 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
     }
 
     @TarsusMethod
+    @Stream("DelReq", "DelOrSaveRes")
+    delTranslateByID(Request: DelReq, Response: DelOrSaveRes): Promise<DelOrSaveRes> {
+        return new Promise(async (resolve, reject) => {
+            const conn = await $PoolConn();
+            let sql = `delete from word_translates where id = ${Request.id}`;
+            conn.query(sql,function (){
+                Response.message = "删除成功";
+                resolve(Response)
+            })
+        })
+    }
+
+    @TarsusMethod
     @Stream("Word", "DelOrSaveRes")
     saveWord(Request: Word, Response: DelOrSaveRes): Promise<DelOrSaveRes> {
         const {en_name, create_time, own_mark, type} = Request
@@ -173,7 +184,26 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
     @TarsusMethod
     @Stream("WordTranslate", "DelOrSaveRes")
     saveTranslate(Request: WordTranslate, Response: DelOrSaveRes): Promise<DelOrSaveRes> {
-        return new Promise((resolve, reject) => {
+        const {en_type,cn_name,create_time,own_mark,word_id} = Request;
+        const params = [en_type,cn_name,create_time,own_mark,word_id]
+        let sql = `
+            insert into word_translates(en_type,cn_name,create_time,own_mark,word_id)
+            values (?,?,?,?,?)
+        `
+        return new Promise(async(resolve, reject) => {
+            const conn = await $PoolConn();
+            conn.query(sql, params, (err) => {
+                if (err) {
+                    Response.code = 600
+                    Response.message = "db insert error " + sql;
+                    resolve(Response)
+                } else {
+                    Response.code = 0;
+                    Response.message = "插入成功"
+                    resolve(Response)
+                }
+                conn.release();
+            })
             resolve(Response)
         })
     }

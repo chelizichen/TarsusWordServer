@@ -78,6 +78,7 @@ interface WordServerInf  {
     int getWordList      (Request : getWordListReq, Response : getWordListRes);
     int getTranslateList (Request : getTranslateListReq, Response : getTranslateListRes);
     int delWordById      (Request : DelReq, Response : DelOrSaveRes);
+    int delTranslateByID (Request:  DelReq, Response : DelOrSaveRes);
     int saveWord         (Request : Word,   Response : DelOrSaveRes);   
     int saveTranslate    (Request : WordTranslate,   Response : DelOrSaveRes);   
 };
