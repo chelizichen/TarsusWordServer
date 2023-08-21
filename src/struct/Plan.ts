@@ -22,16 +22,16 @@ export class PlanDetail {
 };
 
 export class PlanWords {
-    public word_ids: Array<number>;
-    public date: string;
+    public word_ids: string;
+    public mark_date: string;
     public is_mark: number;
     public user_id: string;
     public plan_id: string;
 
     constructor(...args: any[]) {
         const _TarsusReadStream = new TarsusReadStream("PlanWords", args);
-        this.word_ids = _TarsusReadStream.read_list(1, "List<int>");
-        this.date = _TarsusReadStream.read_string(2);
+        this.word_ids = _TarsusReadStream.read_string(1);
+        this.mark_date = _TarsusReadStream.read_string(2);
         this.is_mark = _TarsusReadStream.read_int(3);
         this.user_id = _TarsusReadStream.read_string(4);
         this.plan_id = _TarsusReadStream.read_string(5);
