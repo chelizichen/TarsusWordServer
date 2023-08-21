@@ -7,13 +7,13 @@ import {
     getWordListRes,
     getTranslateListReq,
     getTranslateListRes,
-    DelReq,
     DelOrSaveRes,
     Word,
     WordTranslate
 } from "../struct/Word";
 import {sign} from "crypto";
 import {queryIdReq} from "../struct/Record";
+import {type} from "os";
 
 
 interface WordServerInf {
@@ -28,6 +28,9 @@ interface WordServerInf {
     saveWord(Request: Word, Response: DelOrSaveRes): Promise<DelOrSaveRes>
 
     saveTranslate(Request: WordTranslate, Response: DelOrSaveRes): Promise<DelOrSaveRes>
+
+    getTranslateListById(Request: queryIdReq, Response: getTranslateListRes): Promise<getTranslateListRes>
+
 }
 
 @TarsusInterFace("word")
@@ -45,6 +48,9 @@ select words.*,COUNT(word_translates.id) AS total_trans
 from words 
 LEFT JOIN word_translates ON words.id = word_translates.word_id
 `
+            if (Request.type > 0) {
+                where += ` and type = ${Request.type} `
+            }
             let total = 'select count(*) as total from words';
             let limit = `limit ${current},${size}`
             if (keyword) {
@@ -125,7 +131,10 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
             })
 
             conn.query(select + where + limit, function (_, resu) {
-                Response.list = resu;
+                Response.list = resu.map(item => {
+                    item.create_time = moment(item.create_time).format("YYYY-MM-DD HH:mm:ss")
+                    return item;
+                });
                 signal.list = true
                 if (signal.total && signal.list) {
                     resolve(Response)
@@ -136,8 +145,8 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
     }
 
     @TarsusMethod
-    @Stream("DelReq", "DelOrSaveRes")
-    delWordById(Request: DelReq, Response: DelOrSaveRes): Promise<DelOrSaveRes> {
+    @Stream("queryIdReq", "DelOrSaveRes")
+    delWordById(Request: queryIdReq, Response: DelOrSaveRes): Promise<DelOrSaveRes> {
         return new Promise(async (resolve, reject) => {
             const conn = await $PoolConn();
             let sql = `delete from words where id = ${Request.id}`;
@@ -149,8 +158,8 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
     }
 
     @TarsusMethod
-    @Stream("DelReq", "DelOrSaveRes")
-    delTranslateByID(Request: DelReq, Response: DelOrSaveRes): Promise<DelOrSaveRes> {
+    @Stream("queryIdReq", "DelOrSaveRes")
+    delTranslateByID(Request: queryIdReq, Response: DelOrSaveRes): Promise<DelOrSaveRes> {
         return new Promise(async (resolve, reject) => {
             const conn = await $PoolConn();
             let sql = `delete from word_translates where id = ${Request.id}`;
@@ -189,8 +198,11 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
     @TarsusMethod
     @Stream("WordTranslate", "DelOrSaveRes")
     saveTranslate(Request: WordTranslate, Response: DelOrSaveRes): Promise<DelOrSaveRes> {
-        const {en_type, cn_name, create_time, own_mark, word_id} = Request;
+        let {en_type, cn_name, create_time = '', own_mark, word_id} = Request;
         const params = [en_type, cn_name, create_time, own_mark, word_id]
+        if(!create_time){
+            create_time = moment().format("YYYY-MM-DD HH:mm:ss")
+        }
         let sql = `
             insert into word_translates(en_type,cn_name,create_time,own_mark,word_id)
             values (?,?,?,?,?)
@@ -210,6 +222,33 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
                 conn.release();
             })
             resolve(Response)
+        })
+    }
+
+    @TarsusMethod
+    @Stream("queryIdReq", "getTranslateListRes")
+    getTranslateListById(Request: queryIdReq, Response: getTranslateListRes): Promise<getTranslateListRes> {
+        const conn = $PoolConn();
+        let sql = 'select * from word_translates where word_id = ?';
+        let params = [Request.id];
+        return new Promise(async (resolve, reject) => {
+            const conn = await $PoolConn();
+            conn.query(sql, params, (err, resu) => {
+                if (err) {
+                    Response.code = 600
+                    Response.total = 0
+                    resolve(Response)
+                    return
+                }
+                Response.code = 0
+                Response.list = resu.map(item=>{
+                    item.create_time = moment(item.create_time).format("YYYY-MM-DD")
+                    return item;
+                });
+                Response.total = resu.length;
+                resolve(Response)
+                conn.release();
+            })
         })
     }
 

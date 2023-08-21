@@ -5,8 +5,7 @@ import {
     getUserPlansRes,
     PlanDetail, PlanWords
 } from "../struct/Plan";
-import {Stream, TarsusInterFace, TarsusMethod} from "tarsus/core/microservice";
-import {$PoolConn} from "tarsus/core/types/database";
+import {Stream, TarsusInterFace, TarsusMethod, $PoolConn} from "tarsus/core/microservice";
 import {baseRes, queryIdReq} from "../struct/Record";
 
 interface PlanInf {
@@ -33,11 +32,7 @@ interface PlanInf {
 
 @TarsusInterFace("plan")
 class PlanImpl implements PlanInf {
-    @TarsusMethod
-    @Stream("queryIdReq", "getUserPlanByIdRes")
-    getUserPlanById(Request: queryIdReq, Response: getUserPlanByIdRes): Promise<getUserPlanByIdRes> {
-        return Promise.resolve(undefined);
-    }
+
 
     @TarsusMethod
     @Stream("queryIdReq", "baseRes")
@@ -68,13 +63,49 @@ class PlanImpl implements PlanInf {
     @TarsusMethod
     @Stream("queryIdReq", "getPlanDetailByIdRes")
     getLatestPlanByUser(Request: queryIdReq, Response: getPlanDetailByIdRes): Promise<getPlanDetailByIdRes> {
-        return Promise.resolve(undefined);
+        const id = Request.id;
+
+        return new Promise(async (resolve) => {
+            const conn = await $PoolConn();
+            conn.query('select * from plan_detail where user_id = ? desc limit 0,1', [id], (err, resu) => {
+                if (err) {
+                    Response.message = err.message
+                    Response.code = 600;
+                    resolve(Response)
+                    conn.release()
+                    return
+                }
+                Response.data = resu[0];
+                Response.message = "ok"
+                Response.code = 0;
+                resolve(Response)
+                conn.release()
+            })
+        })
     }
 
     @TarsusMethod
     @Stream("queryIdReq", "getPlanDetailByIdRes")
     getPlanById(Request: queryIdReq, Response: getPlanDetailByIdRes): Promise<getPlanDetailByIdRes> {
-        return Promise.resolve(undefined);
+        const id = Request.id;
+
+        return new Promise(async (resolve) => {
+            const conn = await $PoolConn();
+            conn.query('select * from plan_detail where id = ?', [id], (err, resu) => {
+                if (err) {
+                    Response.message = err.message
+                    Response.code = 600;
+                    resolve(Response)
+                    conn.release()
+                    return
+                }
+                Response.data = resu[0];
+                Response.message = "ok"
+                Response.code = 0;
+                resolve(Response)
+                conn.release()
+            })
+        })
     }
 
     @TarsusMethod
@@ -86,7 +117,26 @@ class PlanImpl implements PlanInf {
     @TarsusMethod
     @Stream("queryIdReq", "getPlanWordsByIdRes")
     getPlansByUser(Request: queryIdReq, Response: getUserPlansRes): Promise<getUserPlansRes> {
-        return Promise.resolve(undefined);
+        const id = Request.id;
+
+        return new Promise(async (resolve) => {
+            const conn = await $PoolConn();
+            conn.query('select * from plan_detail where user_id = ? desc', [id], (err, resu) => {
+                if (err) {
+                    Response.message = err.message
+                    Response.code = 600;
+                    resolve(Response)
+                    conn.release()
+                    return
+                }
+                Response.data = resu;
+                Response.message = "ok"
+                Response.code = 0;
+                Response.total = Response.data.length;
+                resolve(Response)
+                conn.release()
+            })
+        })
     }
 
     @TarsusMethod

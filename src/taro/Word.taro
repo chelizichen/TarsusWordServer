@@ -45,6 +45,7 @@ struct WordParams  {
         5   start_time      :   string;
         6   end_time        :   string;
         7   user_id         :   int;
+        8   type            :   int;
     };
 
     getWordListRes          :   {
@@ -61,6 +62,7 @@ struct WordParams  {
         5   start_time      :   string;
         6   end_time        :   string;
         7   user_id         :   int;
+        8   type            :   int;
     };
 
     getTranslateListRes          :   {
@@ -77,6 +79,7 @@ struct WordParams  {
 interface WordServerInf  {
     int getWordList      (Request : getWordListReq, Response : getWordListRes);
     int getTranslateList (Request : getTranslateListReq, Response : getTranslateListRes);
+    int getTranslateListById (Request : queryIdReq, Response : getTranslateListRes);
     int delWordById      (Request : queryIdReq, Response : DelOrSaveRes);
     int delTranslateByID (Request:  queryIdReq, Response : DelOrSaveRes);
     int saveWord         (Request : Word,   Response : DelOrSaveRes);   
