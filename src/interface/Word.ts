@@ -15,13 +15,18 @@ import {
 import {sign} from "crypto";
 
 
-interface  WordServerInf {
-    getWordList(Request:getWordListReq,Response:getWordListRes):Promise<getWordListRes>
-    getTranslateList(Request:getTranslateListReq,Response:getTranslateListRes):Promise<getTranslateListRes>
-    delWordById(Request:DelReq,Response:DelOrSaveRes):Promise<DelOrSaveRes>
-    delTranslateByID(Request:DelReq,Response:DelOrSaveRes):Promise<DelOrSaveRes>
-    saveWord(Request:Word,Response:DelOrSaveRes):Promise<DelOrSaveRes>
-    saveTranslate(Request:WordTranslate,Response:DelOrSaveRes):Promise<DelOrSaveRes>
+interface WordServerInf {
+    getWordList(Request: getWordListReq, Response: getWordListRes): Promise<getWordListRes>
+
+    getTranslateList(Request: getTranslateListReq, Response: getTranslateListRes): Promise<getTranslateListRes>
+
+    delWordById(Request: DelReq, Response: DelOrSaveRes): Promise<DelOrSaveRes>
+
+    delTranslateByID(Request: DelReq, Response: DelOrSaveRes): Promise<DelOrSaveRes>
+
+    saveWord(Request: Word, Response: DelOrSaveRes): Promise<DelOrSaveRes>
+
+    saveTranslate(Request: WordTranslate, Response: DelOrSaveRes): Promise<DelOrSaveRes>
 
 }
 
@@ -56,8 +61,8 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
             }
 
             conn.query(total + where, function (_, resu) {
-                console.log('total',total + where)
-                console.log('total',resu[0])
+                console.log('total', total + where)
+                console.log('total', resu[0])
                 // Response.total = resu[0].total;
                 Response.total = resu[0].total;
                 signal.total = true
@@ -69,9 +74,9 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
             })
 
             conn.query(select + where + limit, function (_, resu) {
-                console.log('select',select + where + limit)
-                console.log('select',resu)
-                Response.list = resu.map(item=>{
+                console.log('select', select + where + limit)
+                console.log('select', resu)
+                Response.list = resu.map(item => {
                     item.create_time = moment(item.create_time).format("YYYY-MM-DD HH:mm:ss")
                     return item;
                 });
@@ -136,7 +141,7 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
         return new Promise(async (resolve, reject) => {
             const conn = await $PoolConn();
             let sql = `delete from words where id = ${Request.id}`;
-            conn.query(sql,function (){
+            conn.query(sql, function () {
                 Response.message = "删除成功";
                 resolve(Response)
             })
@@ -149,7 +154,7 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
         return new Promise(async (resolve, reject) => {
             const conn = await $PoolConn();
             let sql = `delete from word_translates where id = ${Request.id}`;
-            conn.query(sql,function (){
+            conn.query(sql, function () {
                 Response.message = "删除成功";
                 resolve(Response)
             })
@@ -184,13 +189,13 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
     @TarsusMethod
     @Stream("WordTranslate", "DelOrSaveRes")
     saveTranslate(Request: WordTranslate, Response: DelOrSaveRes): Promise<DelOrSaveRes> {
-        const {en_type,cn_name,create_time,own_mark,word_id} = Request;
-        const params = [en_type,cn_name,create_time,own_mark,word_id]
+        const {en_type, cn_name, create_time, own_mark, word_id} = Request;
+        const params = [en_type, cn_name, create_time, own_mark, word_id]
         let sql = `
             insert into word_translates(en_type,cn_name,create_time,own_mark,word_id)
             values (?,?,?,?,?)
         `
-        return new Promise(async(resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             const conn = await $PoolConn();
             conn.query(sql, params, (err) => {
                 if (err) {

@@ -1,0 +1,48 @@
+/**
+* 记录与打卡相关的结构体
+*/
+
+java_struct_package = com.tarsus.dev_v2_0.struct.*;
+java_inf_package =  com.tarsus.dev_v2_0.taro;
+
+struct PlanParams  {
+
+    // 记录
+    Plan              :     {
+        1   id              :       int;
+        2   user_id         :       string; // 创建时间
+        3   plan_mark       :       string; // 是否打卡 0 未打卡 1 打卡
+        4   plan_start_time :       string; // 用户ID
+        5   plan_end_time   :       string; // 用户ID
+        6   create_time     :       string; // 用户ID
+    };
+
+    // 根据ID查询
+    PlanDetail         :    {
+        1   id              :       int;    // 用户打卡记录
+        2   plan_id         :       int;    // 用户打卡记录
+        3   plan_dates      :       List<PlanWords>;
+    };
+
+    PlanWords           :   {
+        1   word_ids        :       List<int>;
+        2   date            :       string;
+    };
+
+    // 查询用户记录
+    getUserPlanByIdRes         :    {
+        1   user            :       User;    // 用户打卡记录
+        2   data            :       List<PlanWords>;
+        3   code            :       int;
+        4   total           :       int;
+        5   message         :       string;
+    };
+
+};
+
+
+// 记录接口
+
+interface PlanInf  {
+    int getUserPlanById      (Request : queryIdReq, Response : getUserPlanByIdRes);
+};

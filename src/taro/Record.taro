@@ -11,8 +11,8 @@ struct RecordParams  {
     Record              :     {
         1   id            :     int;
         2   create_time   :     string; // 创建时间
-        3   is_register   :     string; // 备注
-        4   user_id       :     string; // 类型
+        3   is_register   :     string; // 是否打卡 0 未打卡 1 打卡
+        4   user_id       :     string; // 用户ID
     };
 
     // 根据ID查询
