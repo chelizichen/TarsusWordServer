@@ -1,4 +1,3 @@
-import {baseRes, queryIdReq} from "../struct/User";
 import {
     getPlanDetailByIdRes,
     getPlanWordsByIdRes,
@@ -7,6 +6,8 @@ import {
     PlanDetail, PlanWords
 } from "../struct/Plan";
 import {Stream, TarsusInterFace, TarsusMethod} from "tarsus/core/microservice";
+import {$PoolConn} from "tarsus/core/types/database";
+import {baseRes, queryIdReq} from "../struct/Record";
 
 interface PlanInf {
     getLatestPlanByUser(Request: queryIdReq, Response: getPlanDetailByIdRes): Promise<getPlanDetailByIdRes>
@@ -41,13 +42,27 @@ class PlanImpl implements PlanInf {
     @TarsusMethod
     @Stream("queryIdReq", "baseRes")
     delPlan(Request: queryIdReq, Response: baseRes): Promise<baseRes> {
-        return Promise.resolve(undefined);
+        return new Promise(async (resolve, reject) => {
+            const conn = await $PoolConn();
+            let sql = `delete from plan_detail where id = ${Request.id}`;
+            conn.query(sql, function () {
+                Response.message = "删除成功";
+                resolve(Response)
+            })
+        })
     }
 
     @TarsusMethod
     @Stream("queryIdReq", "baseRes")
     delPlanWords(Request: queryIdReq, Response: baseRes): Promise<baseRes> {
-        return Promise.resolve(undefined);
+        return new Promise(async (resolve, reject) => {
+            const conn = await $PoolConn();
+            let sql = `delete from plan_words where id = ${Request.id}`;
+            conn.query(sql, function () {
+                Response.message = "删除成功";
+                resolve(Response)
+            })
+        })
     }
 
     @TarsusMethod

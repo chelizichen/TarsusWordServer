@@ -13,6 +13,7 @@ import {
     WordTranslate
 } from "../struct/Word";
 import {sign} from "crypto";
+import {queryIdReq} from "../struct/Record";
 
 
 interface WordServerInf {
@@ -20,14 +21,13 @@ interface WordServerInf {
 
     getTranslateList(Request: getTranslateListReq, Response: getTranslateListRes): Promise<getTranslateListRes>
 
-    delWordById(Request: DelReq, Response: DelOrSaveRes): Promise<DelOrSaveRes>
+    delWordById(Request: queryIdReq, Response: DelOrSaveRes): Promise<DelOrSaveRes>
 
-    delTranslateByID(Request: DelReq, Response: DelOrSaveRes): Promise<DelOrSaveRes>
+    delTranslateByID(Request: queryIdReq, Response: DelOrSaveRes): Promise<DelOrSaveRes>
 
     saveWord(Request: Word, Response: DelOrSaveRes): Promise<DelOrSaveRes>
 
     saveTranslate(Request: WordTranslate, Response: DelOrSaveRes): Promise<DelOrSaveRes>
-
 }
 
 @TarsusInterFace("word")

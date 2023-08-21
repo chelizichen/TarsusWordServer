@@ -15,6 +15,7 @@ struct WordParams  {
         4   own_mark      :     string; // 备注
         5   type          :     string; // 类型
         6   total_trans   :     int;    // 翻译个数
+        7   user_id       :     int;    // 用户ID
     };
 
     // 单词翻译
@@ -25,12 +26,9 @@ struct WordParams  {
         4   own_mark      :     string; // 备注
         5   create_time   :     string; // 创建时间 YYYY-MM-DD hh:mm:ss
         6   word_id       :     int;    // 单词ID
+        7   user_id       :     int;    // 用户ID
     };
 
-    // 删除单词 ｜ 翻译
-    DelReq                :     {
-        1   id            :     int;
-    };
 
     // 删除     ｜通用参数 
     DelOrSaveRes                :     {
@@ -45,7 +43,8 @@ struct WordParams  {
         3   page            :   int;
         4   size            :   int;
         5   start_time      :   string;
-        6   end_time        :   string;                    
+        6   end_time        :   string;
+        7   user_id         :   int;
     };
 
     getWordListRes          :   {
@@ -60,7 +59,8 @@ struct WordParams  {
         3   page            :   int;
         4   size            :   int;
         5   start_time      :   string;
-        6   end_time        :   string;                    
+        6   end_time        :   string;
+        7   user_id         :   int;
     };
 
     getTranslateListRes          :   {
@@ -77,8 +77,8 @@ struct WordParams  {
 interface WordServerInf  {
     int getWordList      (Request : getWordListReq, Response : getWordListRes);
     int getTranslateList (Request : getTranslateListReq, Response : getTranslateListRes);
-    int delWordById      (Request : DelReq, Response : DelOrSaveRes);
-    int delTranslateByID (Request:  DelReq, Response : DelOrSaveRes);
+    int delWordById      (Request : queryIdReq, Response : DelOrSaveRes);
+    int delTranslateByID (Request:  queryIdReq, Response : DelOrSaveRes);
     int saveWord         (Request : Word,   Response : DelOrSaveRes);   
     int saveTranslate    (Request : WordTranslate,   Response : DelOrSaveRes);   
 };
