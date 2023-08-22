@@ -14,7 +14,8 @@ import {
 import {sign} from "crypto";
 import {queryIdReq} from "../struct/Record";
 import {type} from "os";
-
+import {$BuildIn} from "../utils/queryBuilder";
+import lodash from 'lodash'
 
 interface WordServerInf {
     getWordList(Request: getWordListReq, Response: getWordListRes): Promise<getWordListRes>
@@ -82,16 +83,37 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
             conn.query(select + where + limit, function (_, resu) {
                 console.log('select', select + where + limit)
                 console.log('select', resu)
-                Response.list = resu.map(item => {
-                    item.create_time = moment(item.create_time).format("YYYY-MM-DD HH:mm:ss")
-                    return item;
-                });
-                // Response.list = [];
-                signal.list = true
-                if (signal.total && signal.list) {
-                    resolve(Response)
-                    conn.release()
-                }
+                const ids = resu.map(item => item.id);
+
+                let buildIds = $BuildIn(ids)
+                let get_words_translates_sql = `
+                select * from word_translates where word_id in ${buildIds}
+                `
+                conn.query(get_words_translates_sql, (_, wordResu) => {
+                    let WordsResu = {};
+
+                    for (let i = 0; i < wordResu.length; i++) {
+                        let item = wordResu[i]
+                        const {word_id} = item
+                        if (!WordsResu[word_id]) {
+                            WordsResu[word_id] = []
+                        }
+                        WordsResu[word_id].push(item)
+                    }
+                    // const WordsResu = lodash.keyBy(wordResu,"word_id")
+
+                    Response.list = resu.map(item => {
+                        item.word_translates = JSON.stringify(WordsResu[item.id] || "{}")
+                        item.create_time = moment(item.create_time).format("YYYY-MM-DD HH:mm:ss")
+                        return item;
+                    });
+                    signal.list = true
+                    if (signal.total && signal.list) {
+                        resolve(Response)
+                        conn.release()
+                    }
+                })
+
             })
 
         })
@@ -200,28 +222,41 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
     saveTranslate(Request: WordTranslate, Response: DelOrSaveRes): Promise<DelOrSaveRes> {
         let {en_type, cn_name, create_time = '', own_mark, word_id} = Request;
         const params = [en_type, cn_name, create_time, own_mark, word_id]
-        if(!create_time){
+        if (!create_time) {
             create_time = moment().format("YYYY-MM-DD HH:mm:ss")
         }
         let sql = `
             insert into word_translates(en_type,cn_name,create_time,own_mark,word_id)
             values (?,?,?,?,?)
         `
+        let update_time_sql = `
+            update words set update_time = ${create_time} where id = ${word_id};
+        `
+
         return new Promise(async (resolve, reject) => {
             const conn = await $PoolConn();
+            let single = 0
+            conn.query(update_time_sql, function () {
+                if (!single) {
+                    return single++
+                }
+                return conn.release();
+            })
             conn.query(sql, params, (err) => {
                 if (err) {
                     Response.code = 600
                     Response.message = "db insert error " + sql;
                     resolve(Response)
-                } else {
-                    Response.code = 0;
-                    Response.message = "插入成功"
-                    resolve(Response)
                 }
-                conn.release();
+
+                Response.code = 0;
+                Response.message = "插入成功"
+                resolve(Response)
+                if (!single) {
+                    return single++
+                }
+                return conn.release();
             })
-            resolve(Response)
         })
     }
 
@@ -241,7 +276,7 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
                     return
                 }
                 Response.code = 0
-                Response.list = resu.map(item=>{
+                Response.list = resu.map(item => {
                     item.create_time = moment(item.create_time).format("YYYY-MM-DD")
                     return item;
                 });

@@ -5,8 +5,10 @@ import {
     getUserPlansRes,
     PlanDetail, PlanWords
 } from "../struct/Plan";
-import {Stream, TarsusInterFace, TarsusMethod, $PoolConn} from "tarsus/core/microservice";
+import {Stream, TarsusInterFace, TarsusMethod} from "tarsus/core/microservice";
 import {baseRes, queryIdReq} from "../struct/Record";
+import moment from "moment";
+import {$PoolConn} from "tarsus/core/database";
 
 interface PlanInf {
     getLatestPlanByUser(Request: queryIdReq, Response: getPlanDetailByIdRes): Promise<getPlanDetailByIdRes>
@@ -121,7 +123,7 @@ class PlanImpl implements PlanInf {
 
         return new Promise(async (resolve) => {
             const conn = await $PoolConn();
-            conn.query('select * from plan_detail where user_id = ? desc', [id], (err, resu) => {
+            conn.query('select * from plan_detail where user_id = ? order by id desc', [id], (err, resu) => {
                 if (err) {
                     Response.message = err.message
                     Response.code = 600;
@@ -129,7 +131,12 @@ class PlanImpl implements PlanInf {
                     conn.release()
                     return
                 }
-                Response.data = resu;
+                Response.data = resu.map(item=>{
+                    item.create_time = moment(item.create_time).format("YYYY-MM-DD HH:mm:ss")
+                    item.plan_start_time = moment(item.plan_start_time).format("YYYY-MM-DD HH:mm:ss")
+                    item.plan_end_time = moment(item.plan_end_time).format("YYYY-MM-DD HH:mm:ss")
+                    return item
+                });
                 Response.message = "ok"
                 Response.code = 0;
                 Response.total = Response.data.length;
@@ -154,13 +161,64 @@ class PlanImpl implements PlanInf {
     @TarsusMethod
     @Stream("PlanDetail", "baseRes")
     savePlan(Request: PlanDetail, Response: baseRes): Promise<baseRes> {
-        return Promise.resolve(undefined);
+        let {user_id, is_mark, plan_start_time, plan_end_time, create_time = ''} = Request
+        if (!create_time) {
+            create_time = moment().format('YYYY-MM-DD HH:mm:ss')
+        }
+        Response.code = 0;
+        Response.message = 'ok'
+        return new Promise(async (resolve) => {
+            let sql = `
+            insert into plan_detail
+            (user_id,is_mark,plan_start_time,plan_end_time,create_time)
+            values(?,?,?,?,?)
+            `
+            let params = [user_id, is_mark, plan_start_time, plan_end_time, create_time]
+            const conn = await $PoolConn()
+            conn.query(sql, params, function (err) {
+                if (err) {
+                    Response.message = err.message
+                    Response.code = 600
+                    resolve(Response)
+                    return conn.release();
+                }
+                resolve(Response);
+                return conn.release();
+            })
+        });
+
     }
 
     @TarsusMethod
     @Stream("PlanWords", "baseRes")
     savePlanWords(Request: PlanWords, Response: baseRes): Promise<baseRes> {
-        return Promise.resolve(undefined);
+        let {word_ids,mark_date,is_mark,user_id,plan_id} = Request;
+        if(!word_ids.length){
+            Response.message = "请选择单词"
+            Response.code = 500;
+            return Promise.resolve(Response);
+        }
+        Response.code = 0;
+        Response.message = 'ok'
+        return new Promise(async (resolve) => {
+            let sql = `
+            insert into plan_detail
+            (user_id,is_mark,mark_date,word_ids,plan_id)
+            values(?,?,?,?,?)
+            `
+            let params = [user_id, is_mark, mark_date, word_ids, plan_id]
+            const conn = await $PoolConn()
+            conn.query(sql, params, function (err) {
+                if (err) {
+                    Response.message = err.message
+                    Response.code = 600
+                    resolve(Response)
+                    return conn.release();
+                }
+                resolve(Response);
+                return conn.release();
+            })
+        });
     }
 }
 

@@ -16,6 +16,8 @@ struct WordParams  {
         5   type          :     string; // 类型
         6   total_trans   :     int;    // 翻译个数
         7   user_id       :     int;    // 用户ID
+        8   word_translates  :  string; // JSON序列化后的单词翻译
+        9   update_time   :     string; // YYYY-MM-DD HH:mm:ss更新时间
     };
 
     // 单词翻译

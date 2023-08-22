@@ -27,6 +27,7 @@ export class PlanWords {
     public is_mark: number;
     public user_id: string;
     public plan_id: string;
+    public id: number;
 
     constructor(...args: any[]) {
         const _TarsusReadStream = new TarsusReadStream("PlanWords", args);
@@ -35,6 +36,7 @@ export class PlanWords {
         this.is_mark = _TarsusReadStream.read_int(3);
         this.user_id = _TarsusReadStream.read_string(4);
         this.plan_id = _TarsusReadStream.read_string(5);
+        this.id = _TarsusReadStream.read_int(6);
     }
 };
 

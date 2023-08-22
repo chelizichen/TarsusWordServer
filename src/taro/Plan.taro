@@ -23,6 +23,7 @@ struct PlanParams  {
         3   is_mark         :       int;    // 是否打卡
         4   user_id         :       string; // 用户ID
         5   plan_id         :       string; // 计划ID
+        6   id              :       int;    // id
     };
 
     // 查询用户记录
