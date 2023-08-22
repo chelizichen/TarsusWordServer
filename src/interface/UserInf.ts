@@ -9,6 +9,7 @@ import {
 } from "../struct/User";
 import {Stream, TarsusInterFace, TarsusMethod} from "tarsus/core/microservice";
 import {$PoolConn} from "tarsus/core/database";
+import {$BuildIn} from "../utils/queryBuilder";
 
 interface UserInf {
     getUserList(Request: getUserListReq, Response: getUserListRes): Promise<getUserListRes>
@@ -89,7 +90,32 @@ class UserImpl implements UserInf {
     @TarsusMethod
     @Stream("batchSetUserReq", "baseRes")
     batchSetUser(Request: batchSetUserReq, Response: baseRes): Promise<baseRes> {
-        return Promise.resolve(undefined);
+        Response.code = 0
+        Response.message = 'ok';
+        let ids = Request.ids
+        if(!ids.length){
+            return Promise.resolve(Response)
+        }
+        let info = Request.info
+        let {username,password,role_name,level} = info
+        let buildIds = $BuildIn(ids)
+        let sql = `
+            update user set username = ?,password = ?,role_name = ?, level = ?  where id in ${buildIds}
+        `
+        let params = [username,password,role_name,level]
+        return new Promise(async(resolve)=>{
+            const conn = await $PoolConn()
+            conn.query(sql,params,function (err, results){
+                if(err){
+                    Response.code = 600
+                    Response.message = "ok"
+                    resolve(Response)
+                    return conn.release();
+                }
+                resolve(Response)
+                return conn.release();
+            })
+        });
     }
 
     @TarsusMethod
