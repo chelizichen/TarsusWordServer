@@ -14,8 +14,10 @@ struct UserParams  {
         3   password        :     string; //
         4   email           :     string; //
         5   phone           :     string; //
-        6   create_time     :     string; //
-        7   update_time     :     string; //
+        6   role_name       :     string; //
+        7   level           :     string; //
+        8   create_time     :     string; //
+        9   update_time     :     string; //
     };
 
     // 根据ID查询

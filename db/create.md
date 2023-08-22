@@ -46,4 +46,16 @@ CREATE TABLE plan_words (
     user_id VARCHAR(255),
     plan_id INT
 );
+
+CREATE TABLE users (
+    id INT PRIMARY KEY,
+    username VARCHAR(255),
+    password VARCHAR(255),
+    email VARCHAR(255),
+    phone VARCHAR(255),
+    role_name VARCHAR(255),
+    level VARCHAR(255),
+    create_time DATETIME,
+    update_time DATETIME
+);
 ````

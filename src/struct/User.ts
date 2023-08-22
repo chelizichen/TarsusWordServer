@@ -6,6 +6,8 @@ export class User {
     public password: string;
     public email: string;
     public phone: string;
+    public role_name: string;
+    public level: string;
     public create_time: string;
     public update_time: string;
 
@@ -16,8 +18,10 @@ export class User {
         this.password = _TarsusReadStream.read_string(3);
         this.email = _TarsusReadStream.read_string(4);
         this.phone = _TarsusReadStream.read_string(5);
-        this.create_time = _TarsusReadStream.read_string(6);
-        this.update_time = _TarsusReadStream.read_string(7);
+        this.role_name = _TarsusReadStream.read_string(6);
+        this.level = _TarsusReadStream.read_string(7);
+        this.create_time = _TarsusReadStream.read_string(8);
+        this.update_time = _TarsusReadStream.read_string(9);
     }
 };
 
