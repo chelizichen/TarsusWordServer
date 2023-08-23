@@ -125,11 +125,18 @@ function $ExcuteQuery<K,T = Array<K> | undefined>(sql:string,params:Array<filed>
     });
 }
 
+function $Resolve<T extends {code:any,message:any}>(Response:T,QueryResponse:queryRet<any>):T{
+    Response.code = QueryResponse.code;
+    Response.message = QueryResponse.message
+    return Response
+}
+
 export  {
     $BuildIn,
     $BuildDel,
     $BuildSel,
     $QueryOne,
     $QueryDel,
-    $ExcuteQuery
+    $ExcuteQuery,
+    $Resolve
 }

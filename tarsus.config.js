@@ -12,4 +12,5 @@ module.exports = {
             connectionLimit: 10,
         },
     },
+    proxy:"http://localhost:14001/proxy/invoke"
 };
