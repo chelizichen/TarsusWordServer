@@ -75,6 +75,7 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
                 signal.total = true
                 if (signal.total && signal.list) {
                     resolve(Response)
+                    console.log("释放链接,total")
                     conn.release()
                 }
 
@@ -87,7 +88,7 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
 
                 let buildIds = $BuildIn(ids)
                 let get_words_translates_sql = `
-                select * from word_translates where word_id in ${buildIds}
+                select cn_name,en_type,word_id from word_translates where word_id in ${buildIds}
                 `
                 conn.query(get_words_translates_sql, (_, wordResu) => {
                     let WordsResu = {};
@@ -100,16 +101,16 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
                         }
                         WordsResu[word_id].push(item)
                     }
-                    // const WordsResu = lodash.keyBy(wordResu,"word_id")
-
                     Response.list = resu.map(item => {
                         item.word_translates = JSON.stringify(WordsResu[item.id] || "{}")
                         item.create_time = moment(item.create_time).format("YYYY-MM-DD HH:mm:ss")
+                        item.update_time = moment(item.update_time).format("YYYY-MM-DD HH:mm:ss")
                         return item;
                     });
                     signal.list = true
                     if (signal.total && signal.list) {
                         resolve(Response)
+                        console.log("释放链接,limit")
                         conn.release()
                     }
                 })
@@ -230,8 +231,9 @@ LEFT JOIN word_translates ON words.id = word_translates.word_id
             values (?,?,?,?,?)
         `
         let update_time_sql = `
-            update words set update_time = ${create_time} where id = ${word_id};
+            update words set update_time = '${create_time}' where id = ${word_id};
         `
+        console.log("update_time_sql",update_time_sql)
 
         return new Promise(async (resolve, reject) => {
             const conn = await $PoolConn();
