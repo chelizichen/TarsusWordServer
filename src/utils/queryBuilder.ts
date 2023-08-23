@@ -106,10 +106,30 @@ function $QueryDel(table: string, params: string | filedObj): Promise<queryRet<u
     });
 }
 
+function $ExcuteQuery<K,T = Array<K> | undefined>(sql:string,params:Array<filed> = []):Promise<queryRet<T>>{
+    const ret: queryRet<T> = { code: 0, message: "ok", data: undefined }; // 注意这里的类型声明
+    return new Promise<queryRet<T>>(async (resolve) => {
+        const conn = await $PoolConn();
+        conn.query(sql,params, function (err, res) {
+            if (err) {
+                ret.code = 600;
+                ret.message = err.message;
+                ret.data = undefined
+                resolve(ret);
+                return conn.release();
+            }
+            ret.data = res;
+            resolve(ret);
+            return conn.release();
+        });
+    });
+}
+
 export  {
     $BuildIn,
     $BuildDel,
     $BuildSel,
     $QueryOne,
-    $QueryDel
+    $QueryDel,
+    $ExcuteQuery
 }
