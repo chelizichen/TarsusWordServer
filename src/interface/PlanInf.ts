@@ -9,6 +9,7 @@ import {Stream, TarsusInterFace, TarsusMethod} from "tarsus/core/microservice";
 import {baseRes, queryIdReq} from "../struct/Record";
 import moment from "moment";
 import {$PoolConn} from "tarsus/core/database";
+import {$ExcuteQuery} from "../utils/queryBuilder";
 
 interface PlanInf {
     getLatestPlanByUser(Request: queryIdReq, Response: getPlanDetailByIdRes): Promise<getPlanDetailByIdRes>
@@ -88,26 +89,15 @@ class PlanImpl implements PlanInf {
 
     @TarsusMethod
     @Stream("queryIdReq", "getPlanDetailByIdRes")
-    getPlanById(Request: queryIdReq, Response: getPlanDetailByIdRes): Promise<getPlanDetailByIdRes> {
+    async getPlanById(Request: queryIdReq, Response: getPlanDetailByIdRes): Promise<getPlanDetailByIdRes> {
         const id = Request.id;
-
-        return new Promise(async (resolve) => {
-            const conn = await $PoolConn();
-            conn.query('select * from plan_detail where id = ?', [id], (err, resu) => {
-                if (err) {
-                    Response.message = err.message
-                    Response.code = 600;
-                    resolve(Response)
-                    conn.release()
-                    return
-                }
-                Response.data = resu[0];
-                Response.message = "ok"
-                Response.code = 0;
-                resolve(Response)
-                conn.release()
-            })
-        })
+        const sql = 'select * from plan_detail where id = ?'
+        const parmas = [id]
+        const data = await $ExcuteQuery(sql,parmas)
+        Response.code = 0;
+        Response.message = "ok"
+        Response.data = data[0]
+        return Response;
     }
 
     @TarsusMethod
@@ -123,26 +113,16 @@ class PlanImpl implements PlanInf {
 
         return new Promise(async (resolve) => {
             const conn = await $PoolConn();
-            conn.query('select * from plan_detail where user_id = ? order by id desc', [id], (err, resu) => {
-                if (err) {
-                    Response.message = err.message
-                    Response.code = 600;
-                    resolve(Response)
-                    conn.release()
-                    return
-                }
-                Response.data = resu.map(item=>{
-                    item.create_time = moment(item.create_time).format("YYYY-MM-DD HH:mm:ss")
-                    item.plan_start_time = moment(item.plan_start_time).format("YYYY-MM-DD HH:mm:ss")
-                    item.plan_end_time = moment(item.plan_end_time).format("YYYY-MM-DD HH:mm:ss")
-                    return item
-                });
-                Response.message = "ok"
-                Response.code = 0;
-                Response.total = Response.data.length;
-                resolve(Response)
-                conn.release()
+            let sql = `select * from plan_detail where user_id = ? order by id desc`
+            const data = await $ExcuteQuery<any>(sql,[id])
+            Response.data = data.data.map(item=>{
+                item.create_time = moment(item.create_time).format("YYYY-MM-DD HH:mm:ss")
+                item.plan_start_time = moment(item.plan_start_time).format("YYYY-MM-DD HH:mm:ss")
+                item.plan_end_time = moment(item.plan_end_time).format("YYYY-MM-DD HH:mm:ss")
+                return item
             })
+            Response.total = Response.data.length;
+            resolve(Response)
         })
     }
 

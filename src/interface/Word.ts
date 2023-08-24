@@ -38,19 +38,19 @@ interface WordServerInf {
 
 @TarsusInterFace("word")
 class WordImpl implements WordServerInf {
-    
-    @UseImpl(UserImpl)
-    public UserImpl:UserImpl
+    //
+    // @UseImpl(UserImpl)
+    // public UserImpl:UserImpl
 
     @TarsusMethod
     @Stream("getWordListReq", "getWordListRes")
     async getWordList(Request: getWordListReq, Response: getWordListRes): Promise<getWordListRes> {
-        const idReq = new queryIdReq()
-        idReq.id = 1;
-        const idRes =  new getUserByIdRes()
-        debugger;
-        const data = await this.UserImpl.getUserById(idReq,idRes)
-        console.log('this.UserImpl.getUserById',data);
+        // const idReq = new queryIdReq()
+        // idReq.id = 1;
+        // const idRes =  new getUserByIdRes()
+        // debugger;
+        // const data = await this.UserImpl.getUserById(idReq,idRes)
+        // console.log('this.UserImpl.getUserById',data);
         
         // console.log(data);
         

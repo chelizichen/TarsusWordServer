@@ -5,13 +5,13 @@ import {
     getUserListReq,
     getUserListRes,
     queryIdReq,
-    queryIdsReq, User
+    queryIdsReq, queryUsersNameRes, User
 } from "../struct/User";
-import {Stream, TarsusInterFace, TarsusMethod,TarsusReflect} from "tarsus/core/microservice";
-import {$PoolConn} from "tarsus/core/database";
-import {$BuildIn, $ExcuteQuery, $QueryOne, $Resolve} from "../utils/queryBuilder";
+import {TarsusReflect} from "tarsus/core/microservice";
 
 interface UserInf {
+    getBaseUserInfoList(Request: queryIdsReq, Response: queryUsersNameRes): Promise<queryUsersNameRes>
+
     getUserList(Request: getUserListReq, Response: getUserListRes): Promise<getUserListRes>
 
     getUserById(Request: queryIdReq, Response: getUserByIdRes): Promise<getUserByIdRes>
@@ -44,6 +44,10 @@ class UserImpl implements UserInf {
     }
     batchSetUser(Request: batchSetUserReq, Response: baseRes): Promise<baseRes> {
         throw new Error("Method not implemented.");
+    }
+
+    getBaseUserInfoList(Request: queryIdsReq, Response: queryUsersNameRes): Promise<queryUsersNameRes> {
+        return Promise.resolve(undefined);
     }
 
 

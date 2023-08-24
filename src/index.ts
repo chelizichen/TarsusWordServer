@@ -2,6 +2,7 @@ import {LoadInterface, LoadTaro, LoadStruct, LoadServer, TarsusMsApplication} fr
 import WordImpl from './interface/Word';
 import RecordImpl from "./interface/Record";
 import PlanImpl from "./interface/PlanInf";
+import UserImpl from "./interface/UserInf";
 
 
 @TarsusMsApplication
