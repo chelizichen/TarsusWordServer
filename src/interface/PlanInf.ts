@@ -112,7 +112,6 @@ class PlanImpl implements PlanInf {
         const id = Request.id;
 
         return new Promise(async (resolve) => {
-            const conn = await $PoolConn();
             let sql = `select * from plan_detail where user_id = ? order by id desc`
             const data = await $ExcuteQuery<any>(sql,[id])
             Response.data = data.data.map(item=>{
