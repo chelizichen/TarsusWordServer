@@ -25,7 +25,7 @@ interface UserInf {
     batchSetUser(Request: batchSetUserReq, Response: baseRes): Promise<baseRes>
 }
 
-@TarsusReflect("user")
+@TarsusReflect("UserServer","user")
 class UserImpl implements UserInf {
     getUserList(Request: getUserListReq, Response: getUserListRes): Promise<getUserListRes> {
         throw new Error("Method not implemented.");

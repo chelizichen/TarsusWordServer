@@ -1,4 +1,4 @@
-import {TarsusInterFace, TarsusMethod, Stream} from "tarsus/core/microservice";
+import {TarsusInterFace, TarsusMethod, Stream,UseImpl} from "tarsus/core/microservice";
 import {$PoolConn} from 'tarsus/core/database'
 import moment from 'moment'
 //
@@ -16,6 +16,8 @@ import {queryIdReq} from "../struct/Record";
 import {type} from "os";
 import {$BuildIn} from "../utils/queryBuilder";
 import lodash from 'lodash'
+import UserImpl from "./UserInf";
+import { getUserByIdRes, getUserListReq, getUserListRes } from "../struct/User";
 
 interface WordServerInf {
     getWordList(Request: getWordListReq, Response: getWordListRes): Promise<getWordListRes>
@@ -36,9 +38,22 @@ interface WordServerInf {
 
 @TarsusInterFace("word")
 class WordImpl implements WordServerInf {
+    
+    @UseImpl(UserImpl)
+    public UserImpl:UserImpl
+
     @TarsusMethod
     @Stream("getWordListReq", "getWordListRes")
-    getWordList(Request: getWordListReq, Response: getWordListRes): Promise<getWordListRes> {
+    async getWordList(Request: getWordListReq, Response: getWordListRes): Promise<getWordListRes> {
+        const idReq = new queryIdReq()
+        idReq.id = 1;
+        const idRes =  new getUserByIdRes()
+        debugger;
+        const data = await this.UserImpl.getUserById(idReq,idRes)
+        console.log('this.UserImpl.getUserById',data);
+        
+        // console.log(data);
+        
         return new Promise(async (resolve, reject) => {
             const {page = 1, size = 10, keyword = '', start_time, desc = "1", end_time} = Request
             const conn = await $PoolConn();
