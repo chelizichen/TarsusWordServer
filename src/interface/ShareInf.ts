@@ -10,6 +10,8 @@ import {
 import {baseRes, queryIdReq} from "../struct/User";
 import {Stream, TarsusInterFace, TarsusMethod} from "tarsus/core/microservice";
 import {$ExecuteQuery} from "../utils/queryBuilder";
+import {Inject} from "tarsus/core/ioc";
+import ShareService from "../service/ShareService";
 
 interface ShareInf {
     getShareList(Request: getListBaseReq, Response: getShareListRes): Promise<getShareListRes>
@@ -28,6 +30,10 @@ interface ShareInf {
 
 @TarsusInterFace("share")
 class ShareImpl implements ShareInf {
+
+    @Inject(ShareService)
+    private ShareService:ShareService
+
     @TarsusMethod
     @Stream("queryIdReq", "baseRes")
     async delShare(Request: queryIdReq, Response: baseRes): Promise<baseRes> {
@@ -56,7 +62,7 @@ class ShareImpl implements ShareInf {
 
     @TarsusMethod
     @Stream("ShareInfo", "baseRes")
-    saveShare(Request: ShareInfo, Response: baseRes): Promise<baseRes> {
+    async saveShare(Request: ShareInfo, Response: baseRes): Promise<baseRes> {
         const {user_id, create_time, img, update_time} = Request
         const sql = `
 insert into share 
@@ -80,7 +86,7 @@ values
 
     @TarsusMethod
     @Stream("ShareDetail", "baseRes")
-    saveShareDetail(Request: ShareDetail, Response: baseRes): Promise<baseRes> {
+    async saveShareDetail(Request: ShareDetail, Response: baseRes): Promise<baseRes> {
         const {content, word_ids_list, update_time, share_id} = Request
         const sql = `
 insert into share 
@@ -102,15 +108,18 @@ values
         return Response;
     }
 
-    @TarsusMethod
-    @Stream("shareToUserReq", "baseRes")
-    shareToUser(Request: shareToUserReq, Response: baseRes): Promise<baseRes> {
-        return Promise.resolve(undefined);
-    }
+
 
     @TarsusMethod
     @Stream("starShareReq", "baseRes")
     starShare(Request: starShareReq, Response: baseRes): Promise<baseRes> {
+        return Promise.resolve(undefined);
+    }
+    @TarsusMethod
+    @Stream("shareToUserReq", "shareToUserRes")
+    async shareToUser(Request: shareToUserReq, Response: shareToUserRes): Promise<shareToUserRes> {
+        const id:number = Request.user_id;
+        const friend_ids = await this.ShareService.getFriendsById(id)
         return Promise.resolve(undefined);
     }
 }

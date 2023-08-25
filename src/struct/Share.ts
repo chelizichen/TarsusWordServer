@@ -1,3 +1,5 @@
+import { userBaseInfo } from "./User";
+
 const {TarsusReadStream} = require("tarsus-cli/taro");
 
 export class getListBaseReq {

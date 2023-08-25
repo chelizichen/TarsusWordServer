@@ -107,7 +107,7 @@ class PlanImpl implements PlanInf {
     }
 
     @TarsusMethod
-    @Stream("queryIdReq", "getPlanWordsByIdRes")
+    @Stream("queryIdReq", "getUserPlansRes")
     getPlansByUser(Request: queryIdReq, Response: getUserPlansRes): Promise<getUserPlansRes> {
         const id = Request.id;
 
@@ -121,6 +121,7 @@ class PlanImpl implements PlanInf {
                 return item
             })
             Response.total = Response.data.length;
+            console.log("Response",Response);
             resolve(Response)
         })
     }
