@@ -69,15 +69,26 @@ export class starShareReq {
 };
 
 export class shareToUserReq {
-    public share_id: number;
     public user_id: number;
-    public to_user_id: number;
 
     constructor(...args: any[]) {
         const _TarsusReadStream = new TarsusReadStream("shareToUserReq", args);
-        this.share_id = _TarsusReadStream.read_int(1);
-        this.user_id = _TarsusReadStream.read_int(2);
-        this.to_user_id = _TarsusReadStream.read_int(3);
+        this.user_id = _TarsusReadStream.read_int(1);
+    }
+};
+
+export class shareToUserRes {
+    public code: number;
+    public message: string;
+    public url: string;
+    public userList: Array<userBaseInfo>;
+
+    constructor(...args: any[]) {
+        const _TarsusReadStream = new TarsusReadStream("shareToUserRes", args);
+        this.code = _TarsusReadStream.read_int(1);
+        this.message = _TarsusReadStream.read_string(2);
+        this.url = _TarsusReadStream.read_string(3);
+        this.userList = _TarsusReadStream.read_list(4, "List<userBaseInfo>");
     }
 };
 

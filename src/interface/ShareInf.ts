@@ -1,11 +1,20 @@
-import {getListBaseReq, getShareListRes, ShareDetail, ShareInfo, shareToUserReq, starShareReq} from "../struct/Share";
+import {
+    getListBaseReq,
+    getShareListRes,
+    ShareDetail,
+    ShareInfo,
+    shareToUserReq,
+    shareToUserRes,
+    starShareReq
+} from "../struct/Share";
 import {baseRes, queryIdReq} from "../struct/User";
 import {Stream, TarsusInterFace, TarsusMethod} from "tarsus/core/microservice";
+import {$ExecuteQuery} from "../utils/queryBuilder";
 
 interface ShareInf {
     getShareList(Request: getListBaseReq, Response: getShareListRes): Promise<getShareListRes>
 
-    shareToUser(Request: shareToUserReq, Response: baseRes): Promise<baseRes>
+    shareToUser(Request: shareToUserReq, Response: shareToUserRes): Promise<shareToUserRes>
 
     starShare(Request: starShareReq, Response: baseRes): Promise<baseRes>
 
@@ -21,8 +30,22 @@ interface ShareInf {
 class ShareImpl implements ShareInf {
     @TarsusMethod
     @Stream("queryIdReq", "baseRes")
-    delShare(Request: queryIdReq, Response: baseRes): Promise<baseRes> {
-        return Promise.resolve(undefined);
+    async delShare(Request: queryIdReq, Response: baseRes): Promise<baseRes> {
+        const id = Request.id;
+        let sql = `
+        delete share where id = ?
+        `
+        try {
+            await $ExecuteQuery(sql, [id]);
+            Response.message = "删除成功"
+            Response.code = 0
+        } catch (e) {
+            {
+                Response.code = 600;
+                Response.message = "删除失败"
+            }
+        }
+        return Response;
     }
 
     @TarsusMethod
@@ -34,13 +57,49 @@ class ShareImpl implements ShareInf {
     @TarsusMethod
     @Stream("ShareInfo", "baseRes")
     saveShare(Request: ShareInfo, Response: baseRes): Promise<baseRes> {
-        return Promise.resolve(undefined);
+        const {user_id, create_time, img, update_time} = Request
+        const sql = `
+insert into share 
+(user_id,create_time,img,update_time)
+values
+(?,?,?,?,?)
+`;
+        const params = [user_id, create_time, img, update_time]
+        try {
+            await $ExecuteQuery(sql, params);
+            Response.message = "插入成功"
+            Response.code = 0
+        } catch (e) {
+            {
+                Response.code = 600;
+                Response.message = "插入失败"
+            }
+        }
+        return Response;
     }
 
     @TarsusMethod
     @Stream("ShareDetail", "baseRes")
     saveShareDetail(Request: ShareDetail, Response: baseRes): Promise<baseRes> {
-        return Promise.resolve(undefined);
+        const {content, word_ids_list, update_time, share_id} = Request
+        const sql = `
+insert into share 
+(content,word_ids_list,update_time,share_id)
+values
+(?,?,?,?)
+`;
+        const params = [content, word_ids_list, update_time, share_id]
+        try {
+            await $ExecuteQuery(sql, params);
+            Response.message = "插入成功"
+            Response.code = 0
+        } catch (e) {
+            {
+                Response.code = 600;
+                Response.message = "插入失败"
+            }
+        }
+        return Response;
     }
 
     @TarsusMethod

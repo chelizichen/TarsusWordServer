@@ -9,7 +9,7 @@ import {Stream, TarsusInterFace, TarsusMethod} from "tarsus/core/microservice";
 import {baseRes, queryIdReq} from "../struct/Record";
 import moment from "moment";
 import {$PoolConn} from "tarsus/core/database";
-import {$ExcuteQuery} from "../utils/queryBuilder";
+import {$ExecuteQuery} from "../utils/queryBuilder";
 
 interface PlanInf {
     getLatestPlanByUser(Request: queryIdReq, Response: getPlanDetailByIdRes): Promise<getPlanDetailByIdRes>
@@ -93,7 +93,7 @@ class PlanImpl implements PlanInf {
         const id = Request.id;
         const sql = 'select * from plan_detail where id = ?'
         const parmas = [id]
-        const data = await $ExcuteQuery(sql,parmas)
+        const data = await $ExecuteQuery(sql,parmas)
         Response.code = 0;
         Response.message = "ok"
         Response.data = data[0]
@@ -113,7 +113,7 @@ class PlanImpl implements PlanInf {
 
         return new Promise(async (resolve) => {
             let sql = `select * from plan_detail where user_id = ? order by id desc`
-            const data = await $ExcuteQuery<any>(sql,[id])
+            const data = await $ExecuteQuery<any>(sql,[id])
             Response.data = data.data.map(item=>{
                 item.create_time = moment(item.create_time).format("YYYY-MM-DD HH:mm:ss")
                 item.plan_start_time = moment(item.plan_start_time).format("YYYY-MM-DD HH:mm:ss")

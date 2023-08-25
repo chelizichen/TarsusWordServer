@@ -41,9 +41,15 @@ struct ShareParams  {
     };
 
     shareToUserReq             :   {
-        1   share_id        :   int;
-        2   user_id         :   int;
-        3   to_user_id      :   int;
+        1   user_id         :   int;
+    };
+
+    // 分享时生成用户列表和对应的URl
+    shareToUserRes          :   {
+        1   code             :   int;
+        2   message          :  string;
+        3   url              :  string;
+        4   userList         :  List<userBaseInfo>;
     };
 
     getShareListRes         :   {
@@ -60,7 +66,7 @@ struct ShareParams  {
 
 interface ShareInf  {
     int getShareList      (Request : getListBaseReq, Response : getShareListRes);
-    int shareToUser      (Request : shareToUserReq, Response : baseRes);
+    int shareToUser      (Request : shareToUserReq, Response : shareToUserRes);
     int starShare      (Request : starShareReq, Response : baseRes);
     int saveShare       (Request : ShareInfo, Response : baseRes);
     int saveShareDetail (Request : ShareDetail, Response :baseRes);
