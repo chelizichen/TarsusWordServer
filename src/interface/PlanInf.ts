@@ -182,7 +182,7 @@ class PlanImpl implements PlanInf {
         Response.message = 'ok'
         return new Promise(async (resolve) => {
             let sql = `
-            insert into plan_detail
+            insert into plan_words
             (user_id,is_mark,mark_date,word_ids,plan_id)
             values(?,?,?,?,?)
             `
