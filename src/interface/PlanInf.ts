@@ -93,7 +93,7 @@ class PlanImpl implements PlanInf {
         const id = Request.id;
         const sql = 'select * from plan_detail where id = ?'
         const parmas = [id]
-        const data = await $ExecuteQuery(sql,parmas)
+        const data = await $ExecuteQuery(sql, parmas)
         Response.code = 0;
         Response.message = "ok"
         Response.data = data[0]
@@ -102,8 +102,17 @@ class PlanImpl implements PlanInf {
 
     @TarsusMethod
     @Stream("queryIdReq", "getPlanWordsByIdRes")
-    getPlanWordsById(Request: queryIdReq, Response: getPlanWordsByIdRes): Promise<getPlanWordsByIdRes> {
-        return Promise.resolve(undefined);
+    async getPlanWordsById(Request: queryIdReq, Response: getPlanWordsByIdRes): Promise<getPlanWordsByIdRes> {
+        const sql = `select * from plan_words where plan_id = ? `
+        const id = Request.id;
+        const params = [id]
+        const data = await $ExecuteQuery<PlanWords>(sql,params)
+        Response.code = 0
+        Response.message = "ok"
+        Response.total = data.data.length
+        Response.data = data.data
+        // const data = await
+        return Promise.resolve(Response);
     }
 
     @TarsusMethod
@@ -113,15 +122,15 @@ class PlanImpl implements PlanInf {
 
         return new Promise(async (resolve) => {
             let sql = `select * from plan_detail where user_id = ? order by id desc`
-            const data = await $ExecuteQuery<any>(sql,[id])
-            Response.data = data.data.map(item=>{
+            const data = await $ExecuteQuery<any>(sql, [id])
+            Response.data = data.data.map(item => {
                 item.create_time = moment(item.create_time).format("YYYY-MM-DD HH:mm:ss")
                 item.plan_start_time = moment(item.plan_start_time).format("YYYY-MM-DD HH:mm:ss")
                 item.plan_end_time = moment(item.plan_end_time).format("YYYY-MM-DD HH:mm:ss")
                 return item
             })
             Response.total = Response.data.length;
-            console.log("Response",Response);
+            console.log("Response", Response);
             resolve(Response)
         })
     }
@@ -172,8 +181,8 @@ class PlanImpl implements PlanInf {
     @TarsusMethod
     @Stream("PlanWords", "baseRes")
     savePlanWords(Request: PlanWords, Response: baseRes): Promise<baseRes> {
-        let {word_ids,mark_date,is_mark,user_id,plan_id} = Request;
-        if(!word_ids.length){
+        let {word_ids, mark_date, is_mark, user_id, plan_id} = Request;
+        if (!word_ids.length) {
             Response.message = "请选择单词"
             Response.code = 500;
             return Promise.resolve(Response);

@@ -49,9 +49,10 @@ struct PlanParams  {
     };
 
     getPlanWordsByIdRes     :       {
-         1   data    :   PlanWords;
+         1   data    :   List<PlanWords>;
          2   code    :   int;
          3   message :   string;
+         4   total   :   int;
     };
 };
 
