@@ -110,7 +110,10 @@ class PlanImpl implements PlanInf {
         Response.code = 0
         Response.message = "ok"
         Response.total = data.data.length
-        Response.data = data.data
+        Response.data = data.data.map(item=>{
+            item.mark_date = moment(item.mark_date).format("YYYY-MM-DD")
+            return item;
+        })
         // const data = await
         return Promise.resolve(Response);
     }
@@ -137,14 +140,23 @@ class PlanImpl implements PlanInf {
 
     @TarsusMethod
     @Stream("queryIdReq", "baseRes")
-    markPlan(Request: queryIdReq, Response: baseRes): Promise<baseRes> {
-        return Promise.resolve(undefined);
+    async markPlan(Request: queryIdReq, Response: baseRes): Promise<baseRes> {
+        return Promise.resolve(Response)
     }
 
     @TarsusMethod
     @Stream("queryIdReq", "baseRes")
-    markPlanWords(Request: queryIdReq, Response: baseRes): Promise<baseRes> {
-        return Promise.resolve(undefined);
+    async markPlanWords(Request: queryIdReq, Response: baseRes): Promise<baseRes> {
+        const id = Request.id
+        const params = [id]
+
+        const sql = `
+            update plan_words set is_mark = 1 where id = ?
+        `
+        await $ExecuteQuery(sql,params)
+        Response.code = 0
+        Response.message = 'ok'
+        return Promise.resolve(Response);
     }
 
     @TarsusMethod
